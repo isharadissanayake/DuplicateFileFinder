@@ -1,0 +1,123 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="clr-namespace:FindDuplicateFile"
+        xmlns:local="clr-namespace:FindDuplicateFile"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="FindDuplicateFile.DuplicateFileFinder"
+        Title="MainWindow" Height="550" Width="830" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+    <Window.Resources>
+        <local:FileAttribConverter x:Key="converter" />
+        <Style TargetType="{x:Type DataGridRow}">
+            <Setter Property="Background" Value="{Binding StatusColor}"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="Black" Offset="0"/>
+                <GradientStop Color="#FF20479E" Offset="0.965"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0"/>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="37"/>
+            <RowDefinition Height="65"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="386*"/>
+            <ColumnDefinition Width="25*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel x:Name="lastStackPanel" Orientation="Horizontal" Grid.Row="1" Margin="34,18,3,0" Grid.RowSpan="2">
+            <TextBox x:Name="folderPath" Width="461" Margin="10,25,0,10" IsEnabled="False" TextChanged="folderPath_TextChanged" FontWeight="Bold" FontSize="16" BorderBrush="White" SelectionBrush="White" Foreground="Black" Background="White" />
+            <Button Content=""  x:Name="selectPath" Click="selectPath_Click" Margin="3,25,0,10" Width="40" BorderBrush="{x:Null}"  Foreground="{x:Null}">
+                <Button.Background>
+                    <ImageBrush ImageSource="assets/Untitled-1.png" Stretch="Uniform"/>
+                </Button.Background>
+            </Button>
+
+            <Button Content="Start" x:Name="Calculate"  Width="81" Click="Button1_Click" Margin="3,25,0,10" FontWeight="Bold" Foreground="Black" FontSize="14" Background="#FF31D9EA" />
+            <ComboBox IsEditable="True" Width="122" x:Name="fileExtension" Text="*" SelectionChanged="fileExtension_SelectionChanged" Margin="3,25,0,10" SelectedIndex="0">
+                <ComboBoxItem Content="MP3"/>
+                <ComboBoxItem Content="MP4"/>
+                <ComboBoxItem Content="MOV "/>
+            </ComboBox>
+            <Grid x:Name="wpfProgressBarAndText" Height="25" Width="275" Visibility="Collapsed" >
+                <ProgressBar x:Name="wpfProgressBar" IsIndeterminate="True" Minimum="0" Maximum="100" Width="250" Height="25" />
+                <Viewbox>
+                    <TextBlock Text='Processing, Please Wait....' />
+                </Viewbox>
+            </Grid>
+
+        </StackPanel>
+        <RadioButton Grid.Row="3" Margin="44,0,-34,27" x:Name="rdbLength" IsChecked="True" Foreground="#FFE8D6D6" Grid.ColumnSpan="2">
+            <TextBlock x:Name="textBlock2" TextWrapping="Wrap" Text="Search through file length"/>
+        </RadioButton>
+        <RadioButton Grid.Row="3" Margin="254,0,-54,28" x:Name="rdbHash" RenderTransformOrigin="0.497,1.043" Foreground="#FFF3E4E4" Grid.ColumnSpan="2" >
+            <TextBlock x:Name="textBlock1" TextWrapping="Wrap" Text="Search through hash"/>
+        </RadioButton>
+
+        <!--  LoadingRow="dataGrid1_LoadingRow" -->
+        <DataGrid x:Name="dataGrid1" Grid.Row="3" SelectionMode="Extended" SelectionChanged="dataGrid1_SelectionChanged" Margin="46,26,5,83" Grid.RowSpan="2" FontWeight="Bold" FontSize="14">
+            <DataGrid.Background>
+                <ImageBrush ImageSource="assets/pic1.jpg"/>
+            </DataGrid.Background>
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Open Contain Folder" Click="MenuItem_Click_1" />
+                    <MenuItem Header="Delete" Click="MenuItem_Click" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <TextBlock Text="No Record Found" Width="400"/>
+                    </StackPanel>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+            <DataGrid.Style>
+                <Style TargetType="{x:Type DataGrid}">
+                    <Setter Property="RowDetailsVisibilityMode" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding DataContext.IsRecordExists, RelativeSource={RelativeSource AncestorType={x:Type local:DuplicateFileFinder}, Mode=FindAncestor}}" Value="false">
+                            <Setter Property="RowHeight" Value="0"/>
+                            <Setter Property="RowDetailsVisibilityMode" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Style>
+            <DataGrid.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.ContainerStyle>
+                        <Style TargetType="{x:Type GroupItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type GroupItem}">
+                                        <StackPanel>
+                                            <TextBlock FontWeight="Bold" Foreground="Blue" FontSize="16" Visibility="Hidden"
+                                                      TextAlignment="Center" Text="{Binding DataContext.IsHashSearch, Converter={StaticResource converter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+                                            <ItemsPresenter/>
+                                        </StackPanel>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GroupStyle.ContainerStyle>
+                </GroupStyle>
+            </DataGrid.GroupStyle>
+        </DataGrid>
+        <Label x:Name="label" Content="DUPLICATE AUDIO/VIDEO FINDER" HorizontalAlignment="Left" Margin="245,6,0,0" Grid.RowSpan="2" VerticalAlignment="Top" RenderTransformOrigin="-0.368,-0.6" FontSize="20" FontWeight="Bold" Height="37" Width="331" Foreground="#FFECDDDD"/>
+        <TextBlock Name="textBlock" HorizontalAlignment="Left" Margin="48,309,0,0" Grid.Row="4" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="36" Width="180" Foreground="White" FontSize="14"/>
+        <ComboBox x:Name="ddlLanguage" HorizontalAlignment="Left" Margin="221,308,0,0" Grid.Row="4" VerticalAlignment="Top" Width="120" SelectionChanged="ddlLanguage_SelectionChanged" Height="22">
+            <ComboBoxItem IsSelected="True" Name="English">English</ComboBoxItem>
+            <ComboBoxItem Name="Hindi">Sinhala</ComboBoxItem>
+            <ComboBoxItem Name="Spanish"></ComboBoxItem>
+            <ComboBoxItem Name="Chinese">Tamil</ComboBoxItem>
+        </ComboBox>
+
+
+    </Grid>
+</Window>
+
